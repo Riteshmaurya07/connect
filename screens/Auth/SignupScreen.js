@@ -25,7 +25,12 @@ export default function SignupScreen({ navigation }) {
                 requestsReceived: [],
             });
 
-            Alert.alert('Success', 'Account created!');
+            Alert.alert('Success', 'Account created!', [
+                {
+                    text: 'OK',
+                    onPress: () => navigation.navigate('Login')  // or 'Home'
+                }
+            ]);
         } catch (error) {
             Alert.alert('Signup Failed', error.message);
         }
