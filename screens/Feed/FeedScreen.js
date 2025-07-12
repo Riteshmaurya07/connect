@@ -1,15 +1,29 @@
-// screens/Feed/FeedScreen.js
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, ActivityIndicator, StyleSheet, Image } from 'react-native';
-import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import {
+  View,
+  Text,
+  FlatList,
+  ActivityIndicator,
+  StyleSheet,
+  Image,
+} from 'react-native';
+import {
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+} from 'firebase/firestore';
 import { db } from '../../services/firebase';
 
-// Optional: factor out into a <PostCard> component later
 function PostItem({ post }) {
   return (
     <View style={styles.postContainer}>
-      <Text style={styles.postAuthor}>{post.authorName}</Text>
-      {post.text?.length > 0 && <Text style={{ marginBottom: 8 }}>{post.text}</Text>}
+      <Text style={styles.postAuthor}>
+        {post.authorName || 'Anonymous'}
+      </Text>
+      {post.text?.length > 0 && (
+        <Text style={{ marginBottom: 8 }}>{post.text}</Text>
+      )}
       {post.imageUrl && (
         <Image
           source={{ uri: post.imageUrl }}
@@ -22,24 +36,27 @@ function PostItem({ post }) {
 }
 
 export default function FeedScreen() {
-  const [posts,    setPosts]    = useState([]);
-  const [loading,  setLoading]  = useState(true);
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const postsRef = collection(db, 'posts');
 
   useEffect(() => {
-    // listen to real‑time updates
     const q = query(postsRef, orderBy('createdAt', 'desc'));
-    const unsubscribe = onSnapshot(q, snapshot => {
-      const items = snapshot.docs.map(doc => ({
-        id:   doc.id,
-        ...doc.data()
-      }));
-      setPosts(items);
-      setLoading(false);
-    }, err => {
-      console.error("FeedListener error:", err);
-      setLoading(false);
-    });
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const items = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setPosts(items);
+        setLoading(false);
+      },
+      (err) => {
+        console.error('FeedListener error:', err);
+        setLoading(false);
+      }
+    );
 
     return () => unsubscribe();
   }, []);
@@ -63,7 +80,7 @@ export default function FeedScreen() {
   return (
     <FlatList
       data={posts}
-      keyExtractor={item => item.id}
+      keyExtractor={(item) => item.id}
       renderItem={({ item }) => <PostItem post={item} />}
       contentContainerStyle={{ padding: 16 }}
     />
@@ -71,6 +88,7 @@ export default function FeedScreen() {
 }
 
 const styles = StyleSheet.create({
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   postContainer: {
     padding: 12,
     backgroundColor: '#fff',
